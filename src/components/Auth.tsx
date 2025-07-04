@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { LogIn, UserPlus, Mail, Lock, AlertCircle } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 export const Auth: React.FC = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -9,6 +10,7 @@ export const Auth: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { signIn, signUp } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,12 +18,15 @@ export const Auth: React.FC = () => {
     setError(null);
 
     try {
-      const { error } = isSignUp 
+      const { data, error } = isSignUp 
         ? await signUp(email, password)
         : await signIn(email, password);
 
       if (error) {
         setError(error.message);
+      } else if (data && data.user) {
+        setError(null);
+        navigate('/'); // Redirect to home after successful login/signup
       }
     } catch (err) {
       setError('An unexpected error occurred');
